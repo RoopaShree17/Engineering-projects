@@ -1,0 +1,108 @@
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+class Card {
+    enum Suit {
+        HEARTS, DIAMONDS, CLUBS, SPADES
+    }
+
+    private Suit suit;
+    private int value;
+
+    public Card(Suit suit, int value) {
+        this.suit = suit;
+        this.value = value;
+    }
+
+    public Suit getSuit() {
+        return suit;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    @Override
+    public String toString() {
+        return suit + " " + value;
+    }
+}
+
+class Deck {
+    private List<Card> cards;
+
+    public Deck() {
+        cards = new ArrayList<>();
+        for (Card.Suit suit : Card.Suit.values()) {
+            for (int value = 1; value <= 13; value++) {
+                cards.add(new Card(suit, value));
+            }
+        }
+        Collections.shuffle(cards);
+    }
+
+    public List<Card> drawCards(int numberOfCards) {
+        List<Card> drawnCards = new ArrayList<>();
+        for (int i = 0; i < numberOfCards; i++) {
+            drawnCards.add(cards.remove(cards.size() - 1));
+        }
+        return drawnCards;
+    }
+}
+
+class CardComparator implements Comparator<Card> {
+    @Override
+    public int compare(Card c1, Card c2) {
+        int color1 = (c1.getSuit() == Card.Suit.HEARTS || c1.getSuit() == Card.Suit.DIAMONDS) ? 0 : 1;
+        int color2 = (c2.getSuit() == Card.Suit.HEARTS || c2.getSuit() == Card.Suit.DIAMONDS) ? 0 : 1;
+
+        if (color1 != color2) {
+            return Integer.compare(color1, color2);
+        }
+
+        int suit1 = getSuitRank(c1.getSuit());
+        int suit2 = getSuitRank(c2.getSuit());
+
+        if (suit1 != suit2) {
+            return Integer.compare(suit1, suit2);
+        }
+
+        return Integer.compare(c1.getValue(), c2.getValue());
+    }
+
+    private int getSuitRank(Card.Suit suit) {
+        switch (suit) {
+            case HEARTS:
+                return 0;
+            case DIAMONDS:
+                return 1;
+            case CLUBS:
+                return 2;
+            case SPADES:
+                return 3;
+            default:
+                throw new IllegalArgumentException("Unknown suit: " + suit);
+        }
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Deck deck = new Deck();
+        List<Card> drawnCards = deck.drawCards(20);
+
+        System.out.println("Drawn cards:");
+        for (Card card : drawnCards) {
+            System.out.println(card);
+        }
+
+        Collections.sort(drawnCards, new CardComparator());
+
+        System.out.println("\nSorted cards:");
+        for (Card card : drawnCards) {
+            System.out.println(card);
+        }
+    }
+}
